@@ -20,13 +20,26 @@ Question.prototype.displayQuestion = function() {
     }
 }
 
-Question.prototype.checkAnswer = function(answ) {
+Question.prototype.checkAnswer = function(answ, callBack) {
+
+    var sc;
+
     if (answ === this.correct) {
         console.log('Correct Answer');
+
+        sc = callBack(true);
     } else {
         console.log('wrong answer, try again!!!');
+
+        sc = callBack(false);
     }
 
+    this.displayScore(sc);
+
+}
+
+Question.prototype.displayScore = function(score) {
+    console.log('Current Score:' + score)
 }
 
 var q1 = new Question('Will Modi win the next election??'
@@ -35,17 +48,37 @@ var q1 = new Question('Will Modi win the next election??'
 var q2 = new Question('Is Amit Shah is corrupt??'
 , ['yes', 'no'], 1);
 
-
 var questions = [q1, q2];
 
-var n = Math.floor(Math.random() * questions.length);
 
-questions[n].displayQuestion();
+function scoreKeeper() {
+    var sc = 0;
+    return function(correct) {
+        if (correct) {
+            sc++;
+        }
 
+        return sc;
+    }
+}
 
-var answer = parseInt(prompt('Please Select the correct answer.'));
+var scoreKeep = scoreKeeper();
 
-questions[n].checkAnswer(answer);
+function nextQuestion() {
+
+    var n = Math.floor(Math.random() * questions.length);
+    questions[n].displayQuestion();
+
+    var answer = prompt('Please select the correct answer.');
+    if(answer !== 'exit') {
+        questions[n].checkAnswer(parseInt(answer), scoreKeep);
+        
+        nextQuestion();
+    }
+}
+
+nextQuestion();
+
 
 })();
 
